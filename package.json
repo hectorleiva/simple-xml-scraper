@@ -1,0 +1,21 @@
+{
+  "name": "node_xml_scrapper",
+  "version": "0.1.0",
+  "description": "Specify the sitemap index and grab the xml information from the urls brought back",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies" : [
+    "xml-stream",
+    "simplecrawler",
+    "http",
+    "url"
+  ],
+  "keywords": [
+    "xml-scrapper",
+    "simple-xml-scrapper"
+  ],
+  "author": "Hector Leiva",
+  "license": "ISC"
+}
