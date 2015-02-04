@@ -47,8 +47,9 @@ console.log("Format set to " + format + ".");
 console.log("Crawling: " + index_sitemap + '\n');
 
 crawler = Crawler.crawl(index_sitemap);
-crawler.interval = 10000;
+crawler.interval = 2000; // 1000 = 1 second
 
+res_data = '';
 rendered_sitemaps_folder = __dirname + '/rendered_sitemaps';
 
 if (!fs.existsSync(rendered_sitemaps_folder)) {
@@ -75,8 +76,6 @@ crawler.on("complete", function(err, response) {
 
 
 function job_crawler(url_feed) {
-    sitemap_filename = rendered_sitemaps_folder + url.parse(url_feed).pathname;
-
     if (format == 'xml') {
         //  Just pass in the vanilla XML to be saved as a file
         http.get(url_feed, function(res) {
@@ -85,9 +84,10 @@ function job_crawler(url_feed) {
                 res_data += chunk;
             });
             res.on('end', function() {
+                sitemap_filename = rendered_sitemaps_folder + url.parse(url_feed).pathname;
                 process_file(sitemap_filename, res_data, format);
                 //  Reset the res_data for the new sitemap
-                res_data = null;
+                res_data = '';
             });
         });
     } else {
@@ -106,6 +106,7 @@ function job_crawler(url_feed) {
             });
 
             xml.on('end', function(item) {
+                sitemap_filename = rendered_sitemaps_folder + url.parse(url_feed).pathname;
                 process_file(sitemap_filename, res_data, format);
 
                 //  Reset the array
