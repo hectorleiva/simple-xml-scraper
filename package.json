@@ -1,21 +1,25 @@
 {
   "name": "node_xml_scrapper",
-  "version": "0.1.0",
-  "description": "Specify the sitemap index and grab the xml information from the urls brought back",
+  "version": "0.1.1",
+  "repository": {
+    "type": "git",
+    "url" : "git@github.com:hectorleiva/simple-xml-scraper.git"
+  },
+  "description": "Specify the sitemap index and download the xml information",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies" : [
-    "xml-stream",
-    "simplecrawler",
-    "http",
-    "url"
-  ],
   "keywords": [
     "xml-scrapper",
     "simple-xml-scrapper"
   ],
   "author": "Hector Leiva",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "minimist": "^1.1.0",
+    "simplecrawler": "^0.3.10",
+    "url-validator": "^2.0.3",
+    "xml-stream": "^0.4.5"
+  }
 }
