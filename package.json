@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "repository": {
     "type": "git",
-    "url" : "git@github.com:hectorleiva/simple-xml-scraper.git"
+    "url": "git@github.com:hectorleiva/simple-xml-scraper.git"
   },
   "description": "Specify the sitemap index and download the xml information",
   "main": "app.js",
@@ -18,6 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "minimist": "^1.1.0",
+    "q": "^1.2.0",
     "simplecrawler": "^0.3.10",
     "url-validator": "^2.0.3",
     "xml-stream": "^0.4.5"
