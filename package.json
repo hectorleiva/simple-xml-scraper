@@ -1,11 +1,11 @@
 {
   "name": "node_xml_scrapper",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "repository": {
     "type": "git",
     "url": "git@github.com:hectorleiva/simple-xml-scraper.git"
   },
-  "description": "Specify the sitemap index and download the xml information",
+  "description": "Specify the sitemap index and download the xml information locally or on a node.js server.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
