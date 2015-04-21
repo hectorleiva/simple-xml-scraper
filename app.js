@@ -73,6 +73,23 @@ var httpGet = function(opts) {
   return deferred.promise;
 };
 
+var write_dir = function(dir_name) {
+  var deferred = Q.defer();
+  if (!fs.existsSync(dir_name)) {
+      fs.mkdirSync(dir_name, 0766, function(err) {
+        if (err) {
+          deferred.reject(err);
+        } else {
+          deferred.resolve()
+        }
+      });
+  } else {
+    deferred.resolve();
+  }
+
+  return deferred.promise;
+}
+
 var loadBody = function(res) {
   var deferred = Q.defer();
   var body = '';
@@ -92,13 +109,20 @@ function jobCrawler(url_feed, format) {
       return res;
     }).then(function(res) {
       loadBody(res).then(function(body) {
-        sitemap_filename = rendered_sitemaps_folder + url.parse(url_feed).pathname;
-        var ff = format_file(sitemap_filename, format);
-        return writeFile(ff, body).then(function() {
-          console.log('File written in: ', ff);
-        }, function() {
-          console.log('Unable to write file to: ', ff);
-        });
+        console.log(url.parse(url_feed).hostname);
+        var host_name = url.parse(url_feed).hostname;
+        var file_name = url.parse(url_feed).pathname;
+
+        write_dir(rendered_sitemaps_folder+host_name+'/')
+          .then(function() {
+            var sitemap_path = rendered_sitemaps_folder + host_name + '/' + path_name;
+            var ff = format_file(sitemap_filename, format);
+            return writeFile(ff, body).then(function() {
+              console.log('File written in: ', ff);
+            }, function() {
+              console.log('Unable to write file to: ', ff);
+            });
+          });
       });
     }, console.error);
   }
@@ -106,12 +130,6 @@ function jobCrawler(url_feed, format) {
 
 crawler = Crawler.crawl(index_sitemap);
 crawler.interval = 2000; // 1000 = 1 second
-
-if (!fs.existsSync(rendered_sitemaps_folder)) {
-    fs.mkdirSync(rendered_sitemaps_folder, 0766, function(err) {
-        if (err) throw err
-    });
-}
 
 //  Crawler engage
 crawler.on("fetchcomplete", function(queueItem, resBuffer, response) {
