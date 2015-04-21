@@ -13,7 +13,6 @@ var crawl,
     format,
     crawler,
     res_data,
-    http_get_options,
     rendered_sitemaps_folder,
     conditionID;
 
@@ -50,7 +49,13 @@ console.log("Crawling: " + index_sitemap + '\n');
 
 var httpGet = function(opts) {
   var deferred = Q.defer();
-  http.get(opts, deferred.resolve);
+
+  http.get(opts, function(res) {
+    deferred.resolve(res);
+  }).on('error', function(e) {
+    deferred.reject(e);
+  });
+
   return deferred.promise;
 };
 
@@ -81,9 +86,7 @@ function jobCrawler(url_feed, format) {
           console.log('Unable to write file to: ', ff);
         });
       });
-    }, function() {
-      console.log('unable to crawl');
-    });
+    }, console.error);
   }
 };
 
