@@ -21,13 +21,13 @@ var crawl,
  * The Index Sitemap that will be crawled for more links
  * @type {String} URL to the sitemap.
  */
-if (argv.site === undefined) {
+if (argv.sitemap_index_url === undefined) {
     var errorMsg = "'sitemap_index_url' is unspecified, please use the argument --sitemap_index_url= to designate the address to the sitemap url";
     throw new Error(errorMsg);
 }
 
 //  Validate if it is a valid URL
-index_sitemap = validate(argv.site);
+index_sitemap = validate(argv.sitemap_index_url);
 if (index_sitemap === false) {
     var errorMsg = "Enter a proper URL including http:// pointing to your sitemap index";
     throw new Error(errorMsg);
@@ -40,12 +40,12 @@ switch (argv.format) {
     case 'xml':
         format = 'xml';
         break;
-    case 'csv':
-        format = 'csv';
-        break;
+    //case 'csv':
+    //    format = 'csv';
+    //    break;
 }
 
-console.log("Format set to " + format + ".");
+console.log("Format to save is set to " + format);
 console.log("Crawling: " + index_sitemap + '\n');
 
 var httpGet = function(opts) {
@@ -75,15 +75,14 @@ function jobCrawler(url_feed, format) {
       loadBody(res).then(function(body) {
         sitemap_filename = rendered_sitemaps_folder + url.parse(url_feed).pathname;
         var ff = format_file(sitemap_filename, format);
-        return Q.nfcall(fs.writeFile, ff, body)
-          .then(function(result) {
-            console.log('the file is at : ', result);
-          })
-          .fail(function(err) {
-            console.log('well shit: ', err);
-          })
-          .done();
+        return writeFile(ff, body).then(function() {
+          console.log('File written in: ', ff);
+        }, function() {
+          console.log('Unable to write file to: ', ff);
+        });
       });
+    }, function() {
+      console.log('unable to crawl');
     });
   }
 };
@@ -115,36 +114,6 @@ crawler.on("complete", function(err, response) {
     if (err) throw err;
     console.log("Crawler has completed crawling the sitemap index.");
 });
-
-//function job_crawler(url_feed) {
-//    if (format == 'xml') {
-//        //  Just pass in the vanilla XML to be saved as a file
-//    } else {
-//        var request = http.get(url_feed).on('response', function(response) {
-//            response.setEncoding('utf8');
-//            var xml = new XmlStream(response);
-//
-//            /**
-//            * Specify which element within the XML response that you want to have
-//            * parsed back and placed into the array to save it within the CSV.
-//            *
-//            * The current default is: <loc></loc>
-//            */
-//            xml.on('endElement: loc', function(xml_item) {
-//                res_data.push(xml_item.loc + '\n');
-//            });
-//
-//            xml.on('end', function(item) {
-//                sitemap_filename = rendered_sitemaps_folder + url.parse(url_feed).pathname;
-//                process_file(sitemap_filename, res_data, format);
-//
-//                //  Reset the array
-//                res_data = [];
-//
-//            });
-//        }); // end of the http request
-//    }
-//}
 
 function format_file(sitemap_filename, format) {
     if (format !== 'xml') {
