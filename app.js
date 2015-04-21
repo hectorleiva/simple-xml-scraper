@@ -6,6 +6,8 @@ var http        = require('http'),
     argv        = require('minimist')(process.argv.slice(2)),
     Q           = require('q'),
     Crawler     = require('simplecrawler'),
+    schedule    = require('node-schedule'),
+    cron_parser = require('cron-parser'),
     writeFile   = Q.denodeify(fs.writeFile);
 
 var crawl,
@@ -13,6 +15,7 @@ var crawl,
     format,
     crawler,
     res_data,
+    cron_expression,
     rendered_sitemaps_folder,
     conditionID;
 
@@ -30,6 +33,18 @@ index_sitemap = validate(argv.sitemap_index_url);
 if (index_sitemap === false) {
     var errorMsg = "Enter a proper URL including http:// pointing to your sitemap index";
     throw new Error(errorMsg);
+}
+
+if (argv.cron_schedule === undefined) {
+  console.log('You are able to set-up a custom cron-schedule via the command line for this process' + '\n'
+      + 'Using the following flag: --cron_schedule' + '\n');
+} else {
+  try {
+    cron_parser.parseExpression(argv.cron_schedule);
+    cron_expression = argv.cron_schedule
+  } catch (err) {
+    console.log('Error parsing cron. Cron expression submitted is not properly formatted: ', err);
+  }
 }
 
 switch (argv.format) {
