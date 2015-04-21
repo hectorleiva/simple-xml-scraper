@@ -14,9 +14,8 @@ var crawl,
     index_sitemap,
     format,
     crawler,
-    res_data,
     cron_expression,
-    rendered_sitemaps_folder,
+    rendered_sitemaps_folder = __dirname + '/rendered_sitemaps',
     conditionID;
 
 /**
@@ -107,9 +106,6 @@ function jobCrawler(url_feed, format) {
 
 crawler = Crawler.crawl(index_sitemap);
 crawler.interval = 2000; // 1000 = 1 second
-
-res_data = '';
-rendered_sitemaps_folder = __dirname + '/rendered_sitemaps';
 
 if (!fs.existsSync(rendered_sitemaps_folder)) {
     fs.mkdirSync(rendered_sitemaps_folder, 0766, function(err) {
