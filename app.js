@@ -8,7 +8,8 @@ var http        = require('http'),
     Crawler     = require('simplecrawler'),
     schedule    = require('node-schedule'),
     cron_parser = require('cron-parser'),
-    writeFile   = Q.denodeify(fs.writeFile);
+    writeFile   = Q.denodeify(fs.writeFile),
+    mkDir       = Q.denodeify(fs.mkdir);
 
 var crawl,
     index_sitemap,
@@ -17,6 +18,18 @@ var crawl,
     cron_expression,
     rendered_sitemaps_folder = __dirname + '/rendered_sitemaps',
     conditionID;
+
+/**
+ *  Determine if directory can be written
+ */
+mkDir(rendered_sitemaps_folder, 0766)
+  .then(null, function(err){
+    if(err.errno === 47) {
+      console.log('/rendered_sitemaps already exists');
+    } else {
+      console.log(err);
+    }
+  });
 
 /**
  * The Index Sitemap that will be crawled for more links
@@ -53,9 +66,6 @@ switch (argv.format) {
     case 'xml':
         format = 'xml';
         break;
-    //case 'csv':
-    //    format = 'csv';
-    //    break;
 }
 
 console.log("Format to save is set to " + format);
@@ -80,7 +90,7 @@ var write_dir = function(dir_name) {
         if (err) {
           deferred.reject(err);
         } else {
-          deferred.resolve()
+          deferred.resolve();
         }
       });
   } else {
@@ -102,28 +112,48 @@ var loadBody = function(res) {
   return deferred.promise;
 }
 
+function format_file(sitemap_filename, format) {
+  if (format !== 'xml') {
+    sitemap_filename = sitemap_filename.replace(/xml/g, format);
+  }
+  return sitemap_filename;
+}
+
 function jobCrawler(url_feed, format) {
   if (format == 'xml') {
     httpGet(url_feed).then(function(res) {
       res.setEncoding('utf8');
       return res;
     }).then(function(res) {
-      loadBody(res).then(function(body) {
-        console.log(url.parse(url_feed).hostname);
-        var host_name = url.parse(url_feed).hostname;
-        var file_name = url.parse(url_feed).pathname;
+      loadBody(res)
+        .then(function(body) {
+          var host_name = url.parse(url_feed).hostname;
+          var file_name = format_file(url.parse(url_feed).pathname, format);
+          var dir_path  = rendered_sitemaps_folder+'/'+host_name;
+          var file_path = dir_path+file_name;
 
-        write_dir(rendered_sitemaps_folder+host_name+'/')
-          .then(function() {
-            var sitemap_path = rendered_sitemaps_folder + host_name + '/' + path_name;
-            var ff = format_file(sitemap_filename, format);
-            return writeFile(ff, body).then(function() {
-              console.log('File written in: ', ff);
-            }, function() {
-              console.log('Unable to write file to: ', ff);
+          mkDir(dir_path, 0766)
+            .then(function() {
+              console.log('Directory ' + dir_path + ' has been written');
+
+              return writeFile(file_path, body).then(function() {
+                console.log('File written in: ', file_path);
+              }, function() {
+                console.log('Unable to write file to: ', file_path);
+              });
+            }, function(err) {
+              if(err.errno === 47) {
+                return writeFile(file_path, body).then(function() {
+                  console.log('File written in: ', file_path);
+                }, function() {
+                  console.log('Unable to write file to: ', file_path);
+                });
+              } else {
+                console.log(err);
+              }
             });
-          });
-      });
+
+        }, console.error);
     }, console.error);
   }
 };
@@ -133,23 +163,16 @@ crawler.interval = 2000; // 1000 = 1 second
 
 //  Crawler engage
 crawler.on("fetchcomplete", function(queueItem, resBuffer, response) {
-    console.log("crawler has received %s (%d bytes)",queueItem.url,resBuffer.length);
-    jobCrawler(queueItem.url, format);
+  console.log("crawler has received %s (%d bytes)",queueItem.url,resBuffer.length);
+  jobCrawler(queueItem.url, format);
 });
 
 //  Only parse XML documents and ignore all other links
 conditionID = crawler.addFetchCondition(function(parsedURL) {
-    return parsedURL.path.match(/\.xml$/i);
+  return parsedURL.path.match(/\.xml$/i);
 });
 
 crawler.on("complete", function(err, response) {
-    if (err) throw err;
-    console.log("Crawler has completed crawling the sitemap index.");
+  if (err) throw err;
+  console.log("Crawler has completed crawling the sitemap index.");
 });
-
-function format_file(sitemap_filename, format) {
-    if (format !== 'xml') {
-        sitemap_filename = sitemap_filename.replace(/xml/g, format);
-    }
-    return sitemap_filename;
-}
