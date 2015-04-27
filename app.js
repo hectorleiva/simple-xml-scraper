@@ -17,17 +17,17 @@ var crawl,
     crawler,
     cron_expression,
     rendered_sitemaps_folder = __dirname + '/rendered_sitemaps',
+    cronJob,
+    dir_perm = 0766,
     conditionID;
 
 /**
  *  Determine if directory can be written
  */
-mkDir(rendered_sitemaps_folder, 0766)
+mkDir(rendered_sitemaps_folder, dir_perm)
   .then(null, function(err){
-    if(err.errno === 47) {
-      console.log('/rendered_sitemaps already exists');
-    } else {
-      console.log(err);
+    if(err.errno !== 47) {
+      throw new Error(err);
     }
   });
 
@@ -48,14 +48,19 @@ if (index_sitemap === false) {
 }
 
 if (argv.cron_schedule === undefined) {
-  console.log('You are able to set-up a custom cron-schedule via the command line for this process' + '\n'
-      + 'Using the following flag: --cron_schedule' + '\n');
+  console.log('\nYou are able to set-up a custom cron-schedule via the command line for this process' + '\n'
+      + 'Using the following flag: --cron_schedule=' + '\n');
 } else {
   try {
     cron_parser.parseExpression(argv.cron_schedule);
-    cron_expression = argv.cron_schedule
+    if (argv.cron_schedule) {
+      cron_expression = argv.cron_schedule
+      console.log('Cron set to: ', cron_expression);
+    } else {
+      console.log('\n Cron Expression is empty, please submit a proper cron expression. \n');
+    }
   } catch (err) {
-    console.log('Error parsing cron. Cron expression submitted is not properly formatted: ', err);
+    throw new Error('Error parsing cron. Cron expression submitted is not properly formatted: ', err);
   }
 }
 
@@ -112,6 +117,15 @@ var loadBody = function(res) {
   return deferred.promise;
 }
 
+/**
+ * Strips the ending of the file_name within the sitemap to whatever other
+ * extension you want. Does not actually change the file itself in any way.
+ *
+ * @param sitemap_filename $sitemap_filename
+ * @param format $format
+ * @access public
+ * @return string
+ */
 function format_file(sitemap_filename, format) {
   if (format !== 'xml') {
     sitemap_filename = sitemap_filename.replace(/xml/g, format);
@@ -119,11 +133,23 @@ function format_file(sitemap_filename, format) {
   return sitemap_filename;
 }
 
+/**
+ * Hits the URL, awaits a response, then parses the response
+ *
+ * @param url_feed $url_feed
+ * @param format $format
+ * @access public
+ * @return void
+ */
 function jobCrawler(url_feed, format) {
   if (format == 'xml') {
     httpGet(url_feed).then(function(res) {
       res.setEncoding('utf8');
-      return res;
+      if (res.statusCode === 200) {
+        return res;
+      } else {
+        throw new Error('Status code was ' + res.statusCode + '. Not parsing because it was not a 200 OK.')
+      }
     }).then(function(res) {
       loadBody(res)
         .then(function(body) {
@@ -132,7 +158,7 @@ function jobCrawler(url_feed, format) {
           var dir_path  = rendered_sitemaps_folder+'/'+host_name;
           var file_path = dir_path+file_name;
 
-          mkDir(dir_path, 0766)
+          mkDir(dir_path, dir_perm)
             .then(function() {
               console.log('Directory ' + dir_path + ' has been written');
 
@@ -158,21 +184,32 @@ function jobCrawler(url_feed, format) {
   }
 };
 
-crawler = Crawler.crawl(index_sitemap);
-crawler.interval = 2000; // 1000 = 1 second
+function initiate_crawl(crawler, Crawler, index_sitemap, format) {
+  crawler = Crawler.crawl(index_sitemap);
+  crawler.interval = 2000; // 1000 = 1 second
 
-//  Crawler engage
-crawler.on("fetchcomplete", function(queueItem, resBuffer, response) {
-  console.log("crawler has received %s (%d bytes)",queueItem.url,resBuffer.length);
-  jobCrawler(queueItem.url, format);
-});
+  crawler.on("fetchcomplete", function(queueItem, resBuffer, response) {
+    console.log("crawler has received %s (%d bytes)",queueItem.url,resBuffer.length);
+    jobCrawler(queueItem.url, format);
+  });
 
-//  Only parse XML documents and ignore all other links
-conditionID = crawler.addFetchCondition(function(parsedURL) {
-  return parsedURL.path.match(/\.xml$/i);
-});
+  //  Only parse XML documents and ignore all other links
+  conditionID = crawler.addFetchCondition(function(parsedURL) {
+    return parsedURL.path.match(/\.xml$/i);
+  });
 
-crawler.on("complete", function(err, response) {
-  if (err) throw err;
-  console.log("Crawler has completed crawling the sitemap index.");
-});
+  crawler.on("complete", function(err, response) {
+    if (err) throw err;
+    console.log("Crawler has completed crawling the sitemap index.");
+  });
+}
+
+
+if (cron_expression) {
+  cronJob = schedule.scheduleJob(cron_expression, function() {
+    initiate_crawl(crawler, Crawler, index_sitemap, format);
+  });
+} else {
+  initiate_crawl(crawler, Crawler, index_sitemap, format);
+}
+
