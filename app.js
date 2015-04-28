@@ -70,7 +70,7 @@ switch (argv.format) {
 }
 
 console.log("Format to save is set to " + format);
-console.log("Crawling: " + index_sitemap + '\n');
+console.log("Index sitemap to crawl: " + index_sitemap + '\n');
 
 var httpGet = function(opts) {
   var deferred = Q.defer();
