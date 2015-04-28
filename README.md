@@ -9,4 +9,4 @@ node app.js --site=http://www.nytimes-se.com/nytse/sitemap.xml
 ```
 
 ### Saving
-- CSV files will be saved with the following filename format `sitemap_index_` + _index value_
+- Files by default are saved into an XML format. Plans for CSV formatting will be made available.
