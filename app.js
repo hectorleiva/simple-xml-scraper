@@ -14,6 +14,7 @@ var http        = require('http'),
 
 var crawl,
     index_sitemap,
+    index_sitemaps,
     format,
     crawler,
     cron_expression,
@@ -40,11 +41,8 @@ if (argv.sitemap_index_url === undefined) {
     throw new Error(msg.undefined_sitemap);
 }
 
-//  Validate if it is a valid URL
-index_sitemap = validate(argv.sitemap_index_url);
-if (index_sitemap === false) {
-    throw new Error(msg.improper_sitemap_url);
-}
+// Validate sitemaps
+index_sitemaps = sitemap_validation(argv.sitemap_index_url);
 
 if (argv.cron_schedule === undefined) {
   console.log(msg.cron_schedule);
@@ -127,6 +125,41 @@ function format_file(sitemap_filename, format) {
     sitemap_filename = sitemap_filename.replace(/xml/g, format);
   }
   return sitemap_filename;
+}
+
+/**
+ * Take sitemap url(s) and validate them. If there are multiple, validate each
+ * one and return an array.
+ *
+ * @param sitemap_urls $sitemap_urls
+ * @access public
+ * @return array
+ */
+function sitemap_validation(sitemap_urls) {
+  var index_sitemap,
+      index_sitemaps;
+
+  if (sitemap_ursl.indexOf(',') === -1) {
+    index_sitemaps = sitemap_urls.split(',');
+  } else {
+    index_sitemap = sitemap_urls;
+  }
+
+  if (index_sitemap) {
+    var index_sitemap_validation = validate(index_sitemap);
+    if (index_sitemap_validation === false) {
+      throw new Error(msg.improper_sitemap_url);
+    }
+    return new Array(index_sitemap);
+  } else if (index_sitemaps) {
+    for sitemap_url in index_sitemaps {
+      var index_sitemap_validation = validate(sitemap_url);
+      if (index_sitemap_validation === false) {
+        throw new Error(msg.improper_sitemap_url);
+      }
+    }
+    return index_sitemaps;
+  }
 }
 
 /**
