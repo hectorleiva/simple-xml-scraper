@@ -8,6 +8,7 @@ var http        = require('http'),
     Crawler     = require('simplecrawler'),
     schedule    = require('node-schedule'),
     cron_parser = require('cron-parser'),
+    msg         = require('./messages.js'),
     writeFile   = Q.denodeify(fs.writeFile),
     mkDir       = Q.denodeify(fs.mkdir);
 
@@ -36,31 +37,26 @@ mkDir(rendered_sitemaps_folder, dir_perm)
  * @type {String} URL to the sitemap.
  */
 if (argv.sitemap_index_url === undefined) {
-    var errorMsg = "'sitemap_index_url' is unspecified, please use the argument --sitemap_index_url= to designate the address to the sitemap url";
-    throw new Error(errorMsg);
+    throw new Error(msg.undefined_sitemap);
 }
 
 //  Validate if it is a valid URL
 index_sitemap = validate(argv.sitemap_index_url);
 if (index_sitemap === false) {
-    var errorMsg = "Enter a proper URL including http:// pointing to your sitemap index";
-    throw new Error(errorMsg);
+    throw new Error(msg.improper_sitemap_url);
 }
 
 if (argv.cron_schedule === undefined) {
-  console.log('\nYou are able to set-up a custom cron-schedule via the command line for this process' + '\n'
-      + 'Using the following flag: --cron_schedule=' + '\n');
+  console.log(msg.cron_schedule);
 } else {
   try {
     cron_parser.parseExpression(argv.cron_schedule);
     if (argv.cron_schedule) {
       cron_expression = argv.cron_schedule
-      console.log('Cron set to: ', cron_expression);
-    } else {
-      console.log('\n Cron Expression is empty, please submit a proper cron expression. \n');
+      console.log(msg.cron_set(cron_expression));
     }
   } catch (err) {
-    throw new Error('Error parsing cron. Cron expression submitted is not properly formatted: ', err);
+    throw new Error(msg.error_cron);
   }
 }
 
