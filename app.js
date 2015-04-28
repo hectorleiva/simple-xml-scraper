@@ -144,7 +144,7 @@ function jobCrawler(url_feed, format) {
       if (res.statusCode === 200) {
         return res;
       } else {
-        throw new Error('Status code was ' + res.statusCode + '. Not parsing because it was not a 200 OK.')
+        throw new Error(msg.error_status_code(res.statusCode));
       }
     }).then(function(res) {
       loadBody(res)

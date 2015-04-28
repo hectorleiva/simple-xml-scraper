@@ -6,5 +6,8 @@ var messages = {
     return 'Cron set to: ' + expression;
   },
   error_cron: 'Error parsing cron. Cron expression submitted is not properly formatted: ',
+  error_status_code: function(statusCode) {
+    return 'Status code was ' + statusCode + '. Not parsing the result because it was not a 200 OK.';
+  }
 };
 module.exports = messages;
