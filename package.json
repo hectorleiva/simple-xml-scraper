@@ -8,9 +8,7 @@
   "description": "Specify the sitemap index and download the xml information locally or on a node.js server.",
   "main": "app.js",
   "scripts": {
-    "test": "npm run with-sitemap && npm run no-sitemap",
-    "with-sitemap": "node_modules/.bin/mocha ./spec/spec.app.js --sitemap_index_url=http://doandroidsdance.local/sitemap_index.xml",
-    "no-sitemap": "node_modules/.bin/mocha ./spec/spec.app.js"
+    "test": "make test"
   },
   "keywords": [
     "xml-scrapper",
