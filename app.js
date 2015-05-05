@@ -9,6 +9,7 @@ var http        = require('http'),
     schedule    = require('node-schedule'),
     cron_parser = require('cron-parser'),
     msg         = require('./messages.js'),
+    _fs         = require('./filesystem.js'),
     writeFile   = Q.denodeify(fs.writeFile),
     mkDir       = Q.denodeify(fs.mkdir);
 
@@ -25,12 +26,7 @@ var crawl,
 /**
  *  Determine if directory can be written
  */
-mkDir(rendered_sitemaps_folder, dir_perm)
-  .then(null, function(err){
-    if(err.errno !== 47) {
-      throw new Error(err);
-    }
-  });
+_fs.mkDir(rendered_sitemaps_folder, dir_perm);
 
 /**
  * The Index Sitemap that will be crawled for more links
@@ -146,7 +142,8 @@ function jobCrawler(url_feed, format) {
       } else {
         throw new Error(msg.error_status_code(res.statusCode));
       }
-    }).then(function(res) {
+    })
+    .then(function(res) {
       loadBody(res)
         .then(function(body) {
           var host_name = url.parse(url_feed).hostname;
@@ -154,27 +151,29 @@ function jobCrawler(url_feed, format) {
           var dir_path  = rendered_sitemaps_folder+'/'+host_name;
           var file_path = dir_path+file_name;
 
-          mkDir(dir_path, dir_perm)
-            .then(function() {
-              console.log('Directory ' + dir_path + ' has been written');
-
-              return writeFile(file_path, body).then(function() {
-                console.log('File written in: ', file_path);
-              }, function() {
-                console.log('Unable to write file to: ', file_path);
-              });
+          _fs.mkDir(dir_path, dir_perm, file_path, body)
+            .then(function(file_path, file_body) {
+              var file_s = {
+                file_path: file_path,
+                body: body
+              };
+              return file_s;
             }, function(err) {
-              if(err.errno === 47) {
-                return writeFile(file_path, body).then(function() {
-                  console.log('File written in: ', file_path);
-                }, function() {
-                  console.log('Unable to write file to: ', file_path);
-                });
+              if (err.errno === 47) { // File already exists
+                var file_s = {
+                  file_path: file_path,
+                  body: body
+                };
+                return file_s;
               } else {
-                console.log(err);
+                throw new Error(err);
               }
+            })
+            .then(function(file_info) {
+              _fs.mkFile(file_info.file_path, file_info.body);
+            }, function(err) {
+              throw new Error(err);
             });
-
         }, console.error);
     }, console.error);
   }
