@@ -1,23 +1,34 @@
-var path = require('path');
-var expect = require('chai').expect;
+var path = require('path'),
+    chai = require('chai'),
+    chaiAsPromised = require('chai-as-promised'),
+    expect = require('chai').expect;
 
-var app = require(path.join(__dirname, '..', './app.js'));
+  chai.use(chaiAsPromised);
 
-describe('app()', function () {
+var _fs = require(path.join(__dirname, '..', './filesystem.js'));
+//var app = require(path.join(__dirname, '..', './app.js'));
+
+describe('Filesystem', function () {
   'use strict';
 
-  it('exists', function () {
-    expect(app).to.be.a('function');
-
+  describe('Filesystem Object Set-up', function() {
+    it('_fs is an object', function () {
+      expect(_fs).be.an.instanceOf(Object);
+    });
   });
 
-  it('does something', function () {
-    expect(true).to.equal(false);
+
+  it('expect reading a non-existent directory to fail', function(done) {
+    expect(_fs.readDir('non-existent-directory')).to.be.rejected.notify(done);
   });
 
-  it('does something else', function () {
-    expect(true).to.equal(false);
+  it('expect creating a test directory to pass', function() {
+    var test = _fs.readDir('test_directory');
+    test.then(function() {
+      console.log('success');
+    }, function() {
+      console.log('failure');
+    });
   });
 
-  // Add more assertions here
 });

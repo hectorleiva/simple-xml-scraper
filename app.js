@@ -9,9 +9,7 @@ var http        = require('http'),
     schedule    = require('node-schedule'),
     cron_parser = require('cron-parser'),
     msg         = require('./messages.js'),
-    _fs         = require('./filesystem.js'),
-    writeFile   = Q.denodeify(fs.writeFile),
-    mkDir       = Q.denodeify(fs.mkdir);
+    _fs         = require('./filesystem.js');
 
 var crawl,
     index_sitemap,

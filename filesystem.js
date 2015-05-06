@@ -34,6 +34,9 @@ var Filesystem = {
         console.log('Unable to write file to: ', file_path);
         throw new Error(err);
       });
+  },
+  readDir: function(folder) {
+    return readDir(folder);
   }
 };
 
