@@ -15,6 +15,18 @@ describe('Filesystem', function () {
     it('_fs is an object', function () {
       expect(_fs).be.an.instanceOf(Object);
     });
+
+    it('_fs has a readDir method', function() {
+      expect(_fs.readDir).be.an.instanceOf(Object);
+    });
+
+    it('_fs has a mkDir method', function() {
+      expect(_fs.mkDir).be.an.instanceOf(Object);
+    });
+
+    it('_fs has a mkFile method', function() {
+      expect(_fs.mkFile).be.an.instanceOf(Object);
+    });
   });
 
 
@@ -22,13 +34,8 @@ describe('Filesystem', function () {
     expect(_fs.readDir('non-existent-directory')).to.be.rejected.notify(done);
   });
 
-  it('expect creating a test directory to pass', function() {
-    var test = _fs.readDir('test_directory');
-    test.then(function() {
-      console.log('success');
-    }, function() {
-      console.log('failure');
-    });
+  it('expect creating a test directory to pass', function(done) {
+    expect(_fs.readDir('test_directory')).to.be.fulfilled.notify(done);
   });
 
 });
