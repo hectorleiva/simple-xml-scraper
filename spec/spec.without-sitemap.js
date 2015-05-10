@@ -29,13 +29,12 @@ describe('Filesystem', function () {
     });
   });
 
-
   it('expect reading a non-existent directory to fail', function(done) {
     expect(_fs.readDir('non-existent-directory')).to.be.rejected.notify(done);
   });
 
   it('expect creating a test directory to pass', function(done) {
-    expect(_fs.readDir('test_directory')).to.be.fulfilled.notify(done);
+    expect(_fs.mkDir('test_directory')).to.be.fulfilled.notify(done);
   });
 
 });
