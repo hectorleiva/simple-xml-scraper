@@ -6,7 +6,7 @@ var path = require('path'),
   chai.use(chaiAsPromised);
 
 var _fs = require(path.join(__dirname, '..', './filesystem.js'));
-//var app = require(path.join(__dirname, '..', './app.js'));
+var crawler = require(path.join(__dirname, '..', './crawler.js'));
 
 describe('Filesystem', function () {
   'use strict';

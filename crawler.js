@@ -16,21 +16,29 @@ var crawl,
     format,
     crawler,
     cron_expression,
-    rendered_sitemaps_folder = __dirname + '/rendered_sitemaps',
+    rendered_sitemaps_folder,
     cronJob,
     dir_perm = 0766,
     conditionID;
 
 var crawlerApp = {
-  init: function(argv) {
+  init: function() {
+
+    if (argv.sitemap_index_url === undefined) {
+      throw new Error(msg.undefined_sitemap);
+    }
+
+    var args = module.exports.args(argv.sitemap_index_url, argv.cron_schedule, argv.format, argv.directory);
+
+    rendered_sitemaps_folder = __dirname + '/' + args.directory;
+
     /**
-    *  Determine if directory can be written
-    */
+      *  Determine if directory can be written
+      */
     _fs.mkDir(rendered_sitemaps_folder, dir_perm);
-    var args = module.exports.args(argv.sitemap_index_url, argv.cron_schedule, argv.format);
 
     console.log("Format to save is set to " + args.format);
-    console.log("Index sitemap to crawl: " + args.index_sitemap + '\n');
+    console.log("Index sitemap to crawl: " + args.sitemap_index_url + '\n');
 
     if (args.cron_expression) {
         cronJob = schedule.scheduleJob(args.cron_expression, function() {
@@ -40,7 +48,7 @@ var crawlerApp = {
       module.exports.crawlerInit(crawler, Crawler, args);
     }
   },
-  args: function(sitemap_index_url, cron_schedule, format) {
+  args: function(sitemap_index_url, cron_schedule, format, directory) {
     var setup_args = {};
 
     /**
@@ -49,6 +57,12 @@ var crawlerApp = {
       */
     if (sitemap_index_url === undefined) {
       throw new Error(msg.undefined_sitemap);
+    }
+
+    if (directory === undefined) {
+      setup_args.directory = 'rendered_sitemaps';
+    } else {
+      setup_args.directory = directory;
     }
 
     //  Validate if it is a valid URL
@@ -98,17 +112,15 @@ var crawlerApp = {
     return deferred.promise;
   },
   loadBody: function(res) {
-    var loadBody = function(res) {
-      var deferred = Q.defer();
-      var body = '';
-      res.on("data", function(chunk) {
-        body += chunk;
-      });
-      res.on("end", function() {
-        deferred.resolve(body);
-      });
-      return deferred.promise;
-    }
+    var deferred = Q.defer();
+    var body = '';
+    res.on("data", function(chunk) {
+      body += chunk;
+    });
+    res.on("end", function() {
+      deferred.resolve(body);
+    });
+    return deferred.promise;
   },
   /**
     * Strips the ending of the file_name within the sitemap to whatever other
@@ -167,7 +179,7 @@ var crawlerApp = {
             module.exports.loadBody(res)
               .then(function(body) {
                 var host_name = url.parse(url_feed).hostname;
-                var file_name = format_file(url.parse(url_feed).pathname, format);
+                var file_name = module.exports.formatFile(url.parse(url_feed).pathname, format);
                 var dir_path  = rendered_sitemaps_folder+'/'+host_name;
                 var file_path = dir_path+file_name;
 
