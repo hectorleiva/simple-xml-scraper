@@ -8,10 +8,10 @@ var path = require('path'),
 var _fs = require(path.join(__dirname, '..', './filesystem.js'));
 var crawler = require(path.join(__dirname, '..', './crawler.js'));
 
-describe('Filesystem', function () {
+describe('Crawler Application', function () {
   'use strict';
 
-  describe('Filesystem Object Set-up', function() {
+  describe('Filesystem', function() {
     it('_fs is an object', function () {
       expect(_fs).be.an.instanceOf(Object);
     });
@@ -27,14 +27,21 @@ describe('Filesystem', function () {
     it('_fs has a mkFile method', function() {
       expect(_fs.mkFile).be.an.instanceOf(Object);
     });
+
+    it('expect reading a non-existent directory to fail', function(done) {
+      expect(_fs.readDir('non-existent-directory')).to.be.rejected.notify(done);
+    });
+
+    it('expect creating a test directory to pass', function(done) {
+      expect(_fs.mkDir('test_directory')).to.be.fulfilled.notify(done);
+    });
   });
 
-  it('expect reading a non-existent directory to fail', function(done) {
-    expect(_fs.readDir('non-existent-directory')).to.be.rejected.notify(done);
-  });
-
-  it('expect creating a test directory to pass', function(done) {
-    expect(_fs.mkDir('test_directory')).to.be.fulfilled.notify(done);
+  describe('Crawler Object', function() {
+    it('Crawler is an Object', function() {
+      expect(crawler).be.an.instanceOf(Object);
+    });
   });
 
 });
+
