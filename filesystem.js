@@ -4,7 +4,8 @@ var Q         = require('q'),
     fs        = require('fs'),
     writeFile = Q.denodeify(fs.writeFile),
     readDir   = Q.denodeify(fs.readdir),
-    mkdir     = Q.denodeify(fs.mkdir);
+    mkdir     = Q.denodeify(fs.mkdir),
+    delDir    = Q.denodeify(fs.rmdir);
 
 var Filesystem = {
   mkDir: function(folder, dir_perm, file_path, file_body) {
@@ -37,6 +38,9 @@ var Filesystem = {
   },
   readDir: function(folder) {
     return readDir(folder);
+  },
+  delDir: function(folder) {
+    return delDir(folder);
   }
 };
 

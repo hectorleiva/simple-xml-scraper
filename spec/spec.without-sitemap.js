@@ -37,6 +37,10 @@ describe('Crawler Sitemap Application', function () {
     it('expect creating a test directory to pass', function(done) {
       expect(_fs.mkDir('test_directory')).to.be.fulfilled.notify(done);
     });
+
+    it('expect deleition of the test directory to pass', function(done) {
+      expect(_fs.delDir('test_directory')).to.be.fulfilled.notify(done);
+    });
   });
 
   describe('Crawler Object', function() {
