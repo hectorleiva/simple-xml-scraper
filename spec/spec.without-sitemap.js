@@ -1,14 +1,16 @@
 var path = require('path'),
     chai = require('chai'),
+    assert = chai.assert,
     chaiAsPromised = require('chai-as-promised'),
-    expect = require('chai').expect;
+    expect = chai.expect;
 
   chai.use(chaiAsPromised);
 
-var _fs = require(path.join(__dirname, '..', './filesystem.js'));
-var crawler = require(path.join(__dirname, '..', './crawler.js'));
+var _fs = require(path.join(__dirname, '..', './filesystem.js')),
+    crawler = require(path.join(__dirname, '..', './crawler.js')),
+    msg = require(path.join(__dirname, '..', './messages.js'));
 
-describe('Crawler Application', function () {
+describe('Crawler Sitemap Application', function () {
   'use strict';
 
   describe('Filesystem', function() {
@@ -40,6 +42,11 @@ describe('Crawler Application', function () {
   describe('Crawler Object', function() {
     it('Crawler is an Object', function() {
       expect(crawler).be.an.instanceOf(Object);
+    });
+
+    it('Crawler throws error and message without sitemap argument', function() {
+      expect(crawler.init).to.throw(Error);
+      assert.throw(crawler.init, msg.undefined_sitemap);
     });
   });
 
