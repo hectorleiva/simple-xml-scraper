@@ -38,6 +38,9 @@ describe('Crawler Sitemap Application', function () {
       expect(_fs.mkDir('test_directory')).to.be.fulfilled.notify(done);
     });
 
+    it('expect deletion of the test directory to pass', function(done) {
+      expect(_fs.delDir('test_directory')).to.be.fulfilled.notify(done);
+    });
   });
 
   describe('Crawler Object', function() {
@@ -49,6 +52,17 @@ describe('Crawler Sitemap Application', function () {
       expect(crawler.init).to.not.throw(Error);
     });
 
+    it('Crawler has created a rendered_sitemaps directory', function(done) {
+      expect(_fs.readDir('rendered_sitemaps')).to.be.fulfilled.notify(done);
+    });
+
+    it('Crawler makes successful http GET request', function(done) {
+      expect(crawler.httpGet('http://google.com')).to.be.fulfilled.notify(done);
+    });
+
+    it('Crawler formats files from one extension to another', function() {
+      expect(crawler.formatFile('random_sitemapindex.xml', 'csv')).to.equal('random_sitemapindex.csv');
+    });
   });
 
 });
