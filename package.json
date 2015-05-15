@@ -16,7 +16,7 @@
     "xml-scrapper",
     "simple-xml-scrapper"
   ],
-  "author": "Hector Leiva",
+  "author": "Hector Leiva <hector@hectorleiva.com> (http://hectorleiva.com)",
   "license": "ISC",
   "dependencies": {
     "cron-parser": "^0.6.1",
