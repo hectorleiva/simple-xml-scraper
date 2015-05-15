@@ -1,5 +1,5 @@
 mocha=@./node_modules/.bin/mocha
-sitemap=--sitemap_index_url=http://doandroidsdance.local/sitemap_index.xml
+sitemap=--sitemap_index_url=http://www.nytimes-se.com/nytse/sitemap.xml
 test-without=spec/spec.without-sitemap.js
 test-sitemap=spec/spec.with-sitemap.js
 
