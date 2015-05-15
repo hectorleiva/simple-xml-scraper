@@ -8,7 +8,9 @@
   "description": "Specify the sitemap index and download the xml information locally or on a node.js server.",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "make test",
+    "test-without-sitemap": "make test-without-sitemap",
+    "test-with-sitemap": "make test-with-sitemap"
   },
   "keywords": [
     "xml-scrapper",
@@ -24,5 +26,10 @@
     "simplecrawler": "^0.3.10",
     "url-validator": "^2.0.3",
     "xml-stream": "^0.4.5"
+  },
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "chai-as-promised": "^5.0.0",
+    "mocha": "^2.2.4"
   }
 }
