@@ -167,47 +167,47 @@ var crawlerApp = {
   jobCrawler: function(url_feed, format) {
     if (format === 'xml') {
       module.exports.httpGet(url_feed, format)
-          .then(function(res) {
-            res.setEncoding('utf8');
-            if (res.statusCode === 200) {
-              return res;
-            } else {
-              throw new Error(msg.error_status_code(res.statusCode));
-            }
-          })
-          .then(function(res) {
-            module.exports.loadBody(res)
-              .then(function(body) {
-                var host_name = url.parse(url_feed).hostname;
-                var file_name = module.exports.formatFile(url.parse(url_feed).pathname, format);
-                var dir_path  = rendered_sitemaps_folder+'/'+host_name;
-                var file_path = dir_path+file_name;
+        .then(function(res) {
+          res.setEncoding('utf8');
+          if (res.statusCode === 200) {
+            return res;
+          } else {
+            throw new Error(msg.error_status_code(res.statusCode));
+          }
+        })
+        .then(function(res) {
+          module.exports.loadBody(res)
+            .then(function(body) {
+              var host_name = url.parse(url_feed).hostname;
+              var file_name = module.exports.formatFile(url.parse(url_feed).pathname, format);
+              var dir_path  = rendered_sitemaps_folder+'/'+host_name;
+              var file_path = dir_path+file_name;
 
-                _fs.mkDir(dir_path, dir_perm, file_path, body)
-                  .then(function(file_path, file_body) {
+              _fs.mkDir(dir_path, dir_perm, file_path, body)
+                .then(function(file_path, file_body) {
+                  var file_s = {
+                    file_path: file_path,
+                    body: body
+                  };
+                  return file_s;
+                }, function(err) {
+                  if (err.errno === 47) { // File already exists
                     var file_s = {
                       file_path: file_path,
                       body: body
                     };
                     return file_s;
-                  }, function(err) {
-                    if (err.errno === 47) { // File already exists
-                      var file_s = {
-                        file_path: file_path,
-                        body: body
-                      };
-                      return file_s;
-                    } else {
-                      throw new Error(err);
-                    }
-                  })
-                  .then(function(file_info) {
-                    _fs.mkFile(file_info.file_path, file_info.body);
-                  }, function(err) {
+                  } else {
                     throw new Error(err);
-                  });
-              }, console.error);
-          }, console.error);
+                  }
+                })
+                .then(function(file_info) {
+                  _fs.mkFile(file_info.file_path, file_info.body);
+                }, function(err) {
+                  throw new Error(err);
+                });
+            }, console.error);
+        }, console.error);
     }
   }
 };
