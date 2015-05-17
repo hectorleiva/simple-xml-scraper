@@ -8,6 +8,7 @@ var http        = require('http'),
     Crawler     = require('simplecrawler'),
     schedule    = require('node-schedule'),
     cron_parser = require('cron-parser'),
+    path        = require('path'),
     msg         = require('./messages.js'),
     _fs         = require('./filesystem.js');
 
@@ -30,7 +31,7 @@ var crawlerApp = {
 
     var args = module.exports.args(argv.sitemap_index_url, argv.cron_schedule, argv.format, argv.directory);
 
-    rendered_sitemaps_folder = __dirname + '/' + args.directory;
+    rendered_sitemaps_folder = path.resolve(".") + '/' + args.directory;
 
     /**
       *  Determine if directory can be written
