@@ -149,7 +149,7 @@ var crawlerApp = {
 
     //  Only parse XML documents and ignore all other links
     conditionID = crawler.addFetchCondition(function(parsedURL) {
-      return parsedURL.path.match(/\.xml$/i);
+      return parsedURL.path.match(/\.xml/i);
     });
 
     crawler.on("complete", function(err, response) {
