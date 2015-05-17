@@ -24,7 +24,7 @@
     "node-schedule": "^0.2.6",
     "path": "^0.11.14",
     "q": "^1.2.0",
-    "simplecrawler": "^0.3.10",
+    "simplecrawler": "^0.5.2",
     "url-validator": "^2.0.3",
     "xml-stream": "^0.4.5"
   },
